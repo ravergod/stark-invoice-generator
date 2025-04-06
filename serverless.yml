@@ -1,0 +1,18 @@
+service: stark-invoice-generator
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+functions:
+  rateHandler:
+    handler: index.run
+    events:
+      - schedule:
+          rate: cron(* */3 ? * SAT *)
+      # rate(3 minutes)
+
+
+plugins:
+  - serverless-offline
