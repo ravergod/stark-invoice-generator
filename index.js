@@ -13,7 +13,7 @@ starkbank.setUser(project);
 
 // run function - main handler
 module.exports.run = async (event, context) => {
-  const invoicesToCreate = await generateFilledInvoiceTemplate();
+  const invoicesToCreate = generateFilledInvoiceTemplate();
 
   // create the invoices using starkbank sdk
   const invoices = await starkbank.invoice.create(invoicesToCreate);
