@@ -1,121 +1,61 @@
-<!--
-title: 'AWS Node Scheduled Cron example in NodeJS'
-description: 'This is an example of creating a function that runs as a cron job using the serverless ''schedule'' event.'
-layout: Doc
-framework: v3
-platform: AWS
-language: nodeJS
-priority: 1
-authorLink: 'https://github.com/0dj0bz'
-authorName: 'Rob Abbott'
-authorAvatar: 'https://avatars3.githubusercontent.com/u/5679763?v=4&s=140'
--->
+# Stark Invoice Generator
 
-# Serverless Framework Node Scheduled Cron on AWS
+This project is a tool for generating invoices using the Stark Bank API. It is implemented as an AWS Lambda function, scheduled to run periodically using the Serverless Framework.
 
-This template demonstrates how to develop and deploy a simple cron-like service running on AWS Lambda using the traditional Serverless Framework.
+## Prerequisites
 
-## Schedule event type
+Ensure you have the following installed on your system:
+- [Node.js](https://nodejs.org/) (version 14 or higher)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [Serverless Framework](https://www.serverless.com/framework/docs/getting-started)
+- A Stark Bank account and API key
 
-This examples defines two functions, `cron` and `secondCron`, both of which are triggered by an event of `schedule` type, which is used for configuring functions to be executed at specific time or in specific intervals. For detailed information about `schedule` event, please refer to corresponding section of Serverless [docs](https://serverless.com/framework/docs/providers/aws/events/schedule/).
+## Installation
 
-When defining `schedule` events, we need to use `rate` or `cron` expression syntax.
+1. Clone the repository:
+  ```bash
+  git clone https://github.com/your-username/stark-invoice-generator.git
+  cd stark-invoice-generator
+  ```
 
-### Rate expressions syntax
+2. Install dependencies:
+  ```bash
+  npm install
+  ```
+  Or, if using yarn:
+  ```bash
+  yarn install
+  ```
 
-```pseudo
-rate(value unit)
-```
+## Configuration
 
-`value` - A positive number
+1. Create a `.env` file in the root directory and add the following environment variables:
+  ```env
+  STARKBANK_KEY=your_private_key_here
+  STARKBANK_PROJECT_ID=your_project_id_here
+  STARKBANK_ENVIRONMENT=sandbox # or production
+  ```
 
-`unit` - The unit of time. ( minute | minutes | hour | hours | day | days )
+2. Replace `your_private_key_here` with your actual Stark Bank private key (in PEM format, with line breaks replaced by `\n`).
 
-In below example, we use `rate` syntax to define `schedule` event that will trigger our `rateHandler` function every minute
+3. Replace `your_project_id_here` with your actual Stark Bank project ID.
 
-```yml
-functions:
-  rateHandler:
-    handler: handler.run
-    events:
-      - schedule: rate(1 minute)
-```
+## Running Locally
 
-Detailed information about rate expressions is available in official [AWS docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#RateExpressions).
+To test the Lambda function locally, use the `serverless-offline` plugin:
 
+1. Start the offline environment:
+  ```bash
+  serverless offline
+  ```
 
-### Cron expressions syntax
+2. The function will be available locally and can be triggered based on the configured schedule or manually via the Serverless Framework.
 
-```pseudo
-cron(Minutes Hours Day-of-month Month Day-of-week Year)
-```
+## Deploying to AWS
 
-All fields are required and time zone is UTC only.
+In order to deploy, you should have serverless framework CLI already configured with your AWS Account credentials.
 
-| Field         | Values         | Wildcards     |
-| ------------- |:--------------:|:-------------:|
-| Minutes       | 0-59           | , - * /       |
-| Hours         | 0-23           | , - * /       |
-| Day-of-month  | 1-31           | , - * ? / L W |
-| Month         | 1-12 or JAN-DEC| , - * /       |
-| Day-of-week   | 1-7 or SUN-SAT | , - * ? / L # |
-| Year          | 192199      | , - * /       |
-
-In below example, we use `cron` syntax to define `schedule` event that will trigger our `cronHandler` function every second minute every Monday through Friday
-
-```yml
-functions:
-  cronHandler:
-    handler: handler.run
-    events:
-      - schedule: cron(0/2 * ? * MON-FRI *)
-```
-
-Detailed information about cron expressions in available in official [AWS docs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions).
-
-
-## Usage
-
-### Deployment
-
-This example is made to work with the Serverless Framework dashboard, which includes advanced features such as CI/CD, monitoring, metrics, etc.
-
-In order to deploy with dashboard, you need to first login with:
-
-```
-serverless login
-```
-
-and then perform deployment with:
-
-```
+To deploy the function to AWS, run:
+```bash
 serverless deploy
-```
-
-After running deploy, you should see output similar to:
-
-```bash
-Deploying aws-node-scheduled-cron-project to stage dev (us-east-1)
-
-✔ Service deployed to stack aws-node-scheduled-cron-project-dev (205s)
-
-functions:
-  rateHandler: aws-node-scheduled-cron-project-dev-rateHandler (2.9 kB)
-  cronHandler: aws-node-scheduled-cron-project-dev-cronHandler (2.9 kB)
-```
-
-There is no additional step required. Your defined schedules becomes active right away after deployment.
-
-### Local invocation
-
-In order to test out your functions locally, you can invoke them with the following command:
-
-```
-serverless invoke local --function rateHandler
-```
-
-After invocation, you should see output similar to:
-
-```bash
-Your cron function "aws-node-scheduled-cron-dev-rateHandler" ran at Fri Mar 05 2021 15:14:39 GMT+0100 (Central European Standard Time)
 ```
